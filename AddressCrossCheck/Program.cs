@@ -20,7 +20,7 @@ namespace AddressCrossCheck
     class Program
     {
         private static LicenseInitializer m_AOLicenseInitializer = new AddressCrossCheck.LicenseInitializer();
-        private static string jurisToCheck = "LOA";
+        private static string jurisToCheck = "";
         private static string textFilePathName = "";
         private static string countyOrAddressSystem = "AddressSystem";  // or "County"
         private static IWorkspace workspaceFGDB;
@@ -30,6 +30,14 @@ namespace AddressCrossCheck
         [STAThread()]
         static void Main(string[] args)
         {
+            // Set commndline args.
+            jurisToCheck = args[0];
+            countyOrAddressSystem = args[1];  // AddressSystem OR County
+            int validationSearchDistance = Convert.ToInt32(args[2]); // 240;
+            const int sqlQuerySearchDistance = 300;
+            
+            var intIttrID = 0;
+
             //ESRI License Initializer generated code.
             m_AOLicenseInitializer.InitializeApplication(new esriLicenseProductCode[] { esriLicenseProductCode.esriLicenseProductCodeAdvanced },
             new esriLicenseExtensionCode[] { });
@@ -57,9 +65,9 @@ namespace AddressCrossCheck
                 // write the first line of the text file - this is the field headings
                 streamWriterAddr.WriteLine("ITTR_ID" + "," + "ADDR_UID" + "," + "ROAD_UID" + "," + "DIST_TO_ROAD" + "," + "PREDIR_ISS" + "," + "POSTTYPE_ISS" + "," + "POSTDIR_ISS" + "," + "ADDR_RANGE_ISS" + "," + "NOT_FOUND" + "," + "DIST_ISS");
 
-                var intIttrID = 0;
-                const int sqlQuerySearchDistance = 250;
-                const int validationSearchDistance = 200;
+                //var intIttrID = 0;
+                //const int sqlQuerySearchDistance = 250;
+                //const int validationSearchDistance = 240;
 
                 // connect to sgid
                 var connString = System.Environment.GetEnvironmentVariable("SGID_SQL_Conn", EnvironmentVariableTarget.User).ToString();
@@ -211,7 +219,6 @@ namespace AddressCrossCheck
                                                     // it's not one of those issues so don't check the next record - break out of while loop
                                                     break;
                                                 }
-
                                             }
                                         }
                                         else
@@ -428,7 +435,6 @@ namespace AddressCrossCheck
         // Export the joined data. 
         private static void ExportTheJoinedFeatureClass(IFeatureClass featClass, string dataSetName)
         {
-
             Geoprocessor GP = new Geoprocessor();
 
             // FeatureClass to Feature Class Tool
