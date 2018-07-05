@@ -2,4 +2,3 @@ c:\users\gbunce\documents\visual studio 2013\Projects\AddressCrossCheck\AddressC
 c:\users\gbunce\documents\visual studio 2013\Projects\AddressCrossCheck\AddressCrossCheck\bin\Debug\AddressCrossCheck.pdb
 c:\users\gbunce\documents\visual studio 2013\Projects\AddressCrossCheck\AddressCrossCheck\obj\x86\Debug\AddressCrossCheck.exe
 c:\users\gbunce\documents\visual studio 2013\Projects\AddressCrossCheck\AddressCrossCheck\obj\x86\Debug\AddressCrossCheck.pdb
-c:\users\gbunce\documents\visual studio 2013\Projects\AddressCrossCheck\AddressCrossCheck\obj\x86\Debug\AddressCrossCheck.csprojResolveAssemblyReference.cache

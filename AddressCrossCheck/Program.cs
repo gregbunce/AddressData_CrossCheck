@@ -22,17 +22,31 @@ namespace AddressCrossCheck
         private static LicenseInitializer m_AOLicenseInitializer = new AddressCrossCheck.LicenseInitializer();
         private static string jurisToCheck = "";
         private static string textFilePathName = "";
-        private static string countyOrAddressSystem = "AddressSystem";  // or "County"
+        private static string countyOrAddressSystem = "";  // AddSystem OR CountyID
         private static IWorkspace workspaceFGDB;
         private static string jurisNameNoSpace;
         private static IFeatureClass addressPointsSGID;
+
     
         [STAThread()]
-        static void Main(string[] args)
+        static void Main(string[] args) // sample parameters: AddSystem LOA 295    __or__  CountyID 49031 295
         {
             // Set commndline args.
-            jurisToCheck = args[0];
-            countyOrAddressSystem = args[1];  // AddressSystem OR County
+            countyOrAddressSystem = args[0];  // AddSystem OR CountyID
+
+            if (countyOrAddressSystem == "AddSystem" || countyOrAddressSystem == "CountyID")
+            {
+                //proceed as normal
+            }
+            else
+            {
+                // message/log parameter not valid      
+                Console.WriteLine(args[0].ToString() + " was not recognized recognized as a valid argument for the first parameter.  Valid args include: AddSystem -OR- CountyID");
+                Console.ReadLine();
+                return;
+            }
+
+            jurisToCheck = args[1];
             int validationSearchDistance = Convert.ToInt32(args[2]); // 240;
             const int sqlQuerySearchDistance = 300;
             
@@ -70,7 +84,7 @@ namespace AddressCrossCheck
                 //const int validationSearchDistance = 240;
 
                 // connect to sgid
-                var connString = System.Environment.GetEnvironmentVariable("SGID_SQL_Conn", EnvironmentVariableTarget.User).ToString();
+                var connString = Environment.GetEnvironmentVariable("SGID_SQL_Conn", EnvironmentVariableTarget.User).ToString();
                 // example of connString = "Data Source=ServerUrlAddress;Initial Catalog=DatabaseName;User ID=DatabaseUserID;Password=DatabaseUserPassword"
 
                 // Connect to the database.
@@ -82,7 +96,7 @@ namespace AddressCrossCheck
                     sgidConnectionRoads.Open();
 
                     // Query Address Points Data
-                    using (var addressCommand = new SqlCommand(@"select OBJECTID, StreetName, AddNum,AddNumSuffix,PrefixDir,StreetType,SuffixDir,UTAddPtID from Location.ADDRESSPOINTS where AddSystem = '" + jurisToCheck + @"'", sgidConnectionAddressPoints))
+                    using (var addressCommand = new SqlCommand(@"select OBJECTID, StreetName, AddNum,AddNumSuffix,PrefixDir,StreetType,SuffixDir,UTAddPtID from Location.ADDRESSPOINTS where " + countyOrAddressSystem + @" = '" + jurisToCheck + @"'", sgidConnectionAddressPoints))
                     {
                         // Create an address point data reader.
                         using (SqlDataReader addressReader = addressCommand.ExecuteReader())
@@ -320,11 +334,11 @@ namespace AddressCrossCheck
             importTable.out_path = @"C:\temp\AddressCrossCheck.gdb";
             // remove space in juris name
             jurisNameNoSpace = jurisToCheck.Replace(" ", "");
-            importTable.out_name = jurisNameNoSpace.Trim() + "_Report";
+            importTable.out_name = "tbl" + jurisNameNoSpace.Trim() + "_Report";
 
             // Execute the Table to Table Tool
             Console.WriteLine("Importing Text File as Table...");
-            GP.Execute(importTable, null);
+            GP.Execute(importTable, null);  // if you get an error on this line it might be b/c there already a table in the fgdb with the same name.
 
 
             // Import the feature classes (address points and roads).
@@ -344,7 +358,7 @@ namespace AddressCrossCheck
             // FeatureClass to Feature Class Tool
             ESRI.ArcGIS.ConversionTools.FeatureClassToFeatureClass importAddrPnts = new ESRI.ArcGIS.ConversionTools.FeatureClassToFeatureClass();
             importAddrPnts.in_features = addressPointsSGID;
-            importAddrPnts.where_clause = "AddSystem = '" + jurisToCheck + @"'";
+            importAddrPnts.where_clause = countyOrAddressSystem + @" = '" + jurisToCheck + @"'";
             importAddrPnts.out_name = "AddrPnts" + jurisNameNoSpace + "_SGID";
             importAddrPnts.out_path = @"C:\temp\AddressCrossCheck.gdb";
 
@@ -360,7 +374,16 @@ namespace AddressCrossCheck
             // FeatureClass to Feature Class Tool
             ESRI.ArcGIS.ConversionTools.FeatureClassToFeatureClass importRoads = new ESRI.ArcGIS.ConversionTools.FeatureClassToFeatureClass();
             importRoads.in_features = roadsSGID;
-            importRoads.where_clause = "ADDRSYS_L = '" + jurisToCheck + @"' or ADDRSYS_R = '" + jurisToCheck + @"'";
+            string roadsFieldType = "";
+            if (countyOrAddressSystem == "AddSystem")
+            {
+                roadsFieldType = "ADDRSYS";
+            }
+            else
+            {
+                roadsFieldType = "COUNTY";
+            }
+            importRoads.where_clause = roadsFieldType + @"_L = '" + jurisToCheck + @"' or " + roadsFieldType + @"_R = '" + jurisToCheck + @"'";
             importRoads.out_name = "Roads" + jurisNameNoSpace + "_SGID";
             importRoads.out_path = @"C:\temp\AddressCrossCheck.gdb";
 
@@ -401,7 +424,7 @@ namespace AddressCrossCheck
                 tableNameJoinFieldName = ".ROAD_UID";
             }
 
-            string tableName = jurisNameNoSpace.Trim() + "_Report";
+            string tableName = "tbl" + jurisNameNoSpace.Trim() + "_Report";
             string queryDefTables = tableName + "," + featureClassName;
             string queryDefWhereClause = tableName + tableNameJoinFieldName + " = " + featureClassName + featureClassJoinFieldName;
 
