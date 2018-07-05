@@ -84,6 +84,7 @@ namespace AddressCrossCheck
                 //const int validationSearchDistance = 240;
 
                 // connect to sgid
+                // Get the connection string from the current machine's env variables
                 var connString = Environment.GetEnvironmentVariable("SGID_SQL_Conn", EnvironmentVariableTarget.User).ToString();
                 // example of connString = "Data Source=ServerUrlAddress;Initial Catalog=DatabaseName;User ID=DatabaseUserID;Password=DatabaseUserPassword"
 
