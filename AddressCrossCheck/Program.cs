@@ -29,7 +29,7 @@ namespace AddressCrossCheck
 
     
         [STAThread()]
-        static void Main(string[] args) // sample parameters: AddSystem LOA 295    __or__  CountyID 49031 295
+        static void Main(string[] args) // args[0] = AddressSystem or CountyID; args[1] = jurisdiction; args[2] = validation search distance (sample parameters: AddSystem LOA 295    __or__  CountyID 49031 295)
         {
             // Set commndline args.
             countyOrAddressSystem = args[0];  // AddSystem OR CountyID
