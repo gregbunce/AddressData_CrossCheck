@@ -96,8 +96,8 @@ namespace AddressCrossCheck
                     sgidConnectionAddressPoints.Open();
                     sgidConnectionRoads.Open();
 
-                    // Query Address Points Data
-                    using (var addressCommand = new SqlCommand(@"select OBJECTID, StreetName, AddNum,AddNumSuffix,PrefixDir,StreetType,SuffixDir,UTAddPtID from Location.ADDRESSPOINTS where " + countyOrAddressSystem + @" = '" + jurisToCheck + @"'", sgidConnectionAddressPoints))
+                    // Query Address Points Data (I updated the query to only select address points that have a numeric value in the AddNum field - this omits values such as '2172-2178' and '125 W')
+                    using (var addressCommand = new SqlCommand(@"select OBJECTID, StreetName, AddNum,AddNumSuffix,PrefixDir,StreetType,SuffixDir,UTAddPtID from Location.ADDRESSPOINTS where " + countyOrAddressSystem + @" = '" + jurisToCheck + @"' and isnumeric(AddNum) = 0", sgidConnectionAddressPoints))
                     {
                         // Create an address point data reader.
                         using (SqlDataReader addressReader = addressCommand.ExecuteReader())
