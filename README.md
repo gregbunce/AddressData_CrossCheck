@@ -4,7 +4,7 @@ C#, ArcObjects project that uses sql spatial queries to cross check address poin
 Overview of operations: 
 * Iterates through each address point and spatially searches for the two closest, matching road segment with the same name, that are within a user-specified distance.
 * Then the code checks the road segments for other matching attributes such as: pre direction, post type, post direction, and if the house number is contained within the segment’s address range.  
-* Additionally, the process allows the user to define a distance in which the address point will be flagged if it falls outside of this range.       
+* Additionally, the process allows the user to define a distance in which the address point will be flagged if it falls outside of this distance range.       
 
 Notes:
 * These checks are considered essential when preparing GIS data for Next Generation 911.
