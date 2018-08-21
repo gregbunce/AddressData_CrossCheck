@@ -1,4 +1,0 @@
-C:\Users\gbunce\documents\visual studio 2013\Projects\AddressCrossCheck\AddressCrossCheck\bin\Release\AddressCrossCheck.exe
-C:\Users\gbunce\documents\visual studio 2013\Projects\AddressCrossCheck\AddressCrossCheck\bin\Release\AddressCrossCheck.pdb
-C:\Users\gbunce\documents\visual studio 2013\Projects\AddressCrossCheck\AddressCrossCheck\obj\x86\Release\AddressCrossCheck.exe
-C:\Users\gbunce\documents\visual studio 2013\Projects\AddressCrossCheck\AddressCrossCheck\obj\x86\Release\AddressCrossCheck.pdb
