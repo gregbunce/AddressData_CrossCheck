@@ -11,6 +11,6 @@
     <VerifyUploadedFiles>false</VerifyUploadedFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <StartArguments>CountyID 49035 295</StartArguments>
+    <StartArguments>CountyID 49033 1000</StartArguments>
   </PropertyGroup>
 </Project>

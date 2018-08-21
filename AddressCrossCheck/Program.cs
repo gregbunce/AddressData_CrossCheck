@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -48,7 +49,7 @@ namespace AddressCrossCheck
 
             jurisToCheck = args[1];
             int validationSearchDistance = Convert.ToInt32(args[2]); // 240;
-            const int sqlQuerySearchDistance = 300;
+            const int sqlQuerySearchDistance = 2000;
             
             var intIttrID = 0;
 
@@ -109,6 +110,19 @@ namespace AddressCrossCheck
                                     // Get the current address point's OID and StreetName
                                     var addressPointOID = addressReader[0];
                                     var addressPointStreetName = addressReader[1];
+                                    // if string value, replace the apostrophe, if any (ex: Glen's Cove to Glen Cove)
+                                    string addrPntStName_string = addressPointStreetName.ToString();
+                                    int isInt;
+                                    if (int.TryParse(addrPntStName_string, out isInt))
+                                    {
+                                        // it's an int
+                                    }
+                                    else
+                                    {
+                                        // not an int, so check for apostrophe and remove.
+                                        addrPntStName_string = addrPntStName_string.Replace("'", "");
+                                        addressPointStreetName = addrPntStName_string;
+                                    }
 
 
                                     // Query the Roads data to check for the nearest road based on the current address point
@@ -117,7 +131,7 @@ namespace AddressCrossCheck
                                     WHERE Shape.STDistance(@g) is not null and Shape.STDistance(@g) < " + sqlQuerySearchDistance + @" and NAME = '" + addressPointStreetName + @"'
                                     ORDER BY Shape.STDistance(@g)", sgidConnectionRoads))
 
-                                        // Create a roads data reader
+                                    // Create a roads data reader
                                     using (SqlDataReader roadsReader = roadsCommand.ExecuteReader())
                                     {
                                         var distIssue = false;
@@ -252,7 +266,7 @@ namespace AddressCrossCheck
                                                 // Use values from the 1st road record found, as the 2nd also had issues
                                                 // "ITTR_ID" + "," + "ADDR_OID" + "," + "ROAD_OID" + "," + "DIST_TO_ROAD" + "," + "PREDIR_ISS" + "," + "POSTTYPE_ISS" + "," + "POSTDIR_ISS" + "," + "ADDR_RANGE_ISS" + "," + "NOT_FOUND" + "," + "DIST_ISS" + "," + "ROAD_RECORD"
                                                 streamWriterAddr.WriteLine((intIttrID = intIttrID + 1) + "," + addressReader[7].ToString() + "," + roadOID_1st.ToString() + "," + distFoundToNearestRoad_1st.ToString() + "," + predirIssue_1st.ToString() + "," + posttypeIssue_1st.ToString() + "," + postdirIssue_1st.ToString() + "," + addrRangeIssue_1st.ToString() + "," + notFound.ToString() + "," + distIssue_1st.ToString());
-                                                Console.WriteLine(addressReader[7].ToString() + "," + roadOID_1st.ToString() + "," + distFoundToNearestRoad_1st.ToString() + "," + predirIssue_1st.ToString() + "," + posttypeIssue_1st.ToString() + "," + postdirIssue_1st.ToString() + "," + addrRangeIssue_1st.ToString() + "," + notFound.ToString() + "," + distIssue_1st.ToString() + "," + currentRoadRecord + " but used 1st");
+                                                Console.WriteLine(addressReader[7].ToString() + "," + roadOID_1st.ToString() + "," + distFoundToNearestRoad_1st.ToString() + "," + predirIssue_1st.ToString() + "," + posttypeIssue_1st.ToString() + "," + postdirIssue_1st.ToString() + "," + addrRangeIssue_1st.ToString() + "," + notFound.ToString() + "," + distIssue_1st.ToString() + "," + currentRoadRecord.ToString());
                                             }
                                             else
                                             {
