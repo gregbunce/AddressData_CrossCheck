@@ -26,6 +26,7 @@ The process cross-checks the address components from address points and road cen
 The project can be run at any time, and AGRC will provide each jurisdiction (county/city) with the following outputs: a file geodatabase containing the output data and an ArcMap document, symbolized, so that the end-user can easily explore the data.   
 
 #####Notes on the File Geodatabase and ArcMap document:
+
 ![Geodatabase](/images/fgdb.png)
 
 * AddrPnts_SGID and Roads_SGID represent a snapshot of the input data, based on when the project was run.
