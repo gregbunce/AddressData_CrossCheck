@@ -5,14 +5,15 @@ As the State of Utah moves closer to Next-Generation-911 (NG911) implementation,
 
 ### AGRC and NG911 Data Validation
 At the moment, AGRC is focused on facilitating two specific data validation checks for NG911 GIS data: 
-Per NG911 specification, address points must be synchronized against the road centerline data.  In other words, address point must have a corresponding road segment.  Here are some common mismatch issues we have found:
-Address components don’t match.  These issues include mismatch in the following address components: pre direction, post type, and post direction
-The editor must determine which dataset (address points or roads) has the correct address component and then correct the issue
-Address point can not find corresponding road centerline
-Often because the road has the alias and primary names switched
-Road centerline address range does not accommodate the address point 
-Typically, the road centerline address ranges need to be adjusted  
-AGRC will geocode the ALI database against the GIS data - to ensure that all valid addresses in the phone carrier’s database can be located/validated in the GIS data.  A similar process will need to happen with the MSAG and the GIS data.  All valid addresses (in the ALI database) that were not found in the GIS will need to be added.  Per NG911 specification, we must have a corresponding GIS address point for all valid ALI records. 
+
+1. Per NG911 specification, address points must be synchronized against the road centerline data.  In other words, address point must have a corresponding road segment.  Here are some common mismatch issues we have found:
+	* Address components don’t match.  These issues include mismatch in the following address components: pre direction, post type, and post direction
+		* The editor must determine which dataset (address points or roads) has the correct address component and then correct the issue
+	* Address point can not find corresponding road centerline
+		* Often because the road has the alias and primary names switched
+	* Road centerline address range does not accommodate the address point 
+		* Typically, the road centerline address ranges need to be adjusted  
+2. AGRC will geocode the ALI database against the GIS data - to ensure that all valid addresses in the phone carrier’s database can be located/validated in the GIS data.  A similar process will need to happen with the MSAG and the GIS data.  All valid addresses (in the ALI database) that were not found in the GIS will need to be added.  Per NG911 specification, we must have a corresponding GIS address point for all valid ALI records. 
  	
 ### The Address Cross Check Project
 AGRC’s Address Cross Check project is centered on the first data validation topic mentioned above.  The project is guided by NG911 and NENA standards.  To facilitate this, AGRC has created a custom process to perform validation checks on the address points and roads datasets.  
