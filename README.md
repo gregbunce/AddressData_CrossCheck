@@ -1,6 +1,6 @@
-# NG911 Address Cross Check Project
+# Address Cross Check Project
 
-### [Click here to visit the this project's web page](https://gregbunce.github.io/AddressData_CrossCheck/)
+### [Click here to visit this project's web page](https://gregbunce.github.io/AddressData_CrossCheck/)
 
 ### Coding Notes
 This project was written with C# and ArcObjects, and uses sql spatial queries to cross check address components in address point data and road centerline data - checking for attribute mismatch, distance issues, and address range issues.  The project outputs a file geodatabase containing the address point and road centerline data with possible issues.  
