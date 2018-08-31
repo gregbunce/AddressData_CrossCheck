@@ -5,6 +5,8 @@ As the State of Utah moves closer to Next-Generation-911 (NG911) implementation,
  
 Please visit [`Utah's NG911 GIS Roadmap`](https://gis.utah.gov/2018-08-31-utah-ng911-gis-roadmap-v1/) for more information on how this project fits into the larger picture.  Specific to this project, the section titled [`Address Component Cross Check`](https://gis.utah.gov/2018-08-31-utah-ng911-gis-roadmap-v1/#cross-check) will give you a good background on why we are doing this.
 
+Please contact [Greg Bunce](mailto:gbunce@utah.gov) at AGRC to have your jurisdiction processed.  In return you will receive a discrepancy report (FileGeodatabase and ArcMap document) indicating records that need further inspection.
+
 ### The Address Cross Check Project
 AGRC’s Address Cross Check project is guided by NG911 GIS standards established by [National Emergency Number Association (NENA)](https://www.nena.org/).  To assist in complying with these standards, AGRC has created a custom process to perform validation checks on the Site/Structure Address Points and Road Centerline datasets.
 
@@ -16,7 +18,7 @@ The process cross-checks the address components from Site/Structure Address Poin
 * Additionally, the process allows the user to define a distance in which the address point will be flagged if it falls outside of this distance range.
 The project can be run at any time, and AGRC will provide each jurisdiction (county/city) with the following outputs: a file geodatabase containing the output data and an ArcMap document, symbolized, so that the end-user can easily explore the data.   
 
-##### Notes on the File Geodatabase and ArcMap document:
+##### Notes on the Output FileGeodatabase and ArcMap document
 
 ![Geodatabase](/images/fgdb.png)
 
