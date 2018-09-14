@@ -3,7 +3,7 @@
 ### Project Background
 As the State of Utah moves closer to Next-Generation-911 (NG911) implementation, data prep and data clean up are the next, most logical steps for GIS readiness. 
  
-Please visit [`Utah's NG911 GIS Roadmap`](https://gis.utah.gov/2018-08-31-utah-ng911-gis-roadmap-v1/) for more information on how this project fits into the larger picture.  Specific to this project, the section titled [`Address Component Cross Check`](https://gis.utah.gov/2018-08-31-utah-ng911-gis-roadmap-v1/#cross-check) will give you a good background on why we are doing this.
+Please visit [`Utah's NG911 GIS Roadmap`](https://gis.utah.gov/utah-ng911-gis-roadmap-v1/) for more information on how this project fits into the larger picture.  Specific to this project, the section titled [`Address Component Cross Check`](https://gis.utah.gov/utah-ng911-gis-roadmap-v1/#cross-check) will give you a good background on why we are doing this.
 
 Please contact [Greg Bunce](mailto:gbunce@utah.gov) at AGRC to have your jurisdiction processed.  In return you will receive a discrepancy report (FileGeodatabase and ArcMap document) indicating records that need further inspection.
 
