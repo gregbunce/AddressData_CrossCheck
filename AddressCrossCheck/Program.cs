@@ -30,7 +30,7 @@ namespace AddressCrossCheck
 
     
         [STAThread()]
-        static void Main(string[] args) // args[0] = AddressSystem or CountyID; args[1] = jurisdiction; args[2] = validation search distance (sample parameters: AddSystem LOA 295    __or__  CountyID 49031 295)
+        static void Main(string[] args) // args[0] = AddressSystem or CountyID; args[1] = jurisdiction; args[2] = validation search distance (sample parameters: AddSystem LOA 295    __or__  CountyID 49031 295)  - AddSystem MURRAY 295
         {
             // Set commndline args.
             countyOrAddressSystem = args[0];  // AddSystem OR CountyID
@@ -231,7 +231,8 @@ namespace AddressCrossCheck
 
                                                 // If it's a road range issue, maybe check the next returned record (ie: don't break out) to see if that's the right one.  This could happen along a long road with a lot of breaks.
                                                 // If rangeIssue is false, then it's not a range issue so we don't need to check the next found road record - at least for this reason, so break out of "Read" so we don't move to the next one.
-                                                if (addrRangeIssue || (predirIssue & posttypeIssue))
+                                                // i added the "(predirIssue & postdirIssue)" part to check for issue when the address point in on the corner of '200 E' and '200 N' and it was getting the wrong one.
+                                                if (addrRangeIssue || (predirIssue & posttypeIssue) || (predirIssue & postdirIssue))
                                                 {
                                                     // then try the next record
                                                     // Preserve road values from 1st found road.
