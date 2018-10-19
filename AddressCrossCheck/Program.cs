@@ -30,7 +30,7 @@ namespace AddressCrossCheck
 
     
         [STAThread()]
-        static void Main(string[] args) // args[0] = AddressSystem or CountyID; args[1] = jurisdiction; args[2] = validation search distance (sample parameters: AddSystem LOA 295    __or__  CountyID 49031 295)  - AddSystem MURRAY 295
+        static void Main(string[] args) // args[0] = AddressSystem or CountyID; args[1] = jurisdiction; args[2] = validation search distance (sample parameters: AddSystem LOA 295    __or__  CountyID 49031 295) 
         {
             // Set commndline args.
             countyOrAddressSystem = args[0];  // AddSystem OR CountyID
@@ -258,7 +258,8 @@ namespace AddressCrossCheck
                                         }
 
                                         // Write out the text file log here, after all the needed sql-returned road records have been itterated.
-                                        if (distIssue || predirIssue || posttypeIssue || postdirIssue || addrRangeIssue || notFound)
+                                        // maybe don't flag DISTANCE ISSUES - if (distIssue || predirIssue || posttypeIssue || postdirIssue || addrRangeIssue || notFound)
+                                        if (predirIssue || posttypeIssue || postdirIssue || addrRangeIssue || notFound)
                                         {
                                             // Use the values from the 1st found road record, if there were issues also found with the second found road record
                                             // b/c the issues was most likely with the 1st.  We only checked the second to see if there were not issues, and that maybe we were checking the wrong record at 1st.
