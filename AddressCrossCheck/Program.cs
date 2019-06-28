@@ -24,6 +24,7 @@ namespace AddressCrossCheck
         private static string jurisToCheck = "";
         private static string textFilePathName = "";
         private static string countyOrAddressSystem = "";  // AddSystem OR CountyID
+        private static string countyName = "";
         private static IWorkspace workspaceFGDB;
         private static string jurisNameNoSpace;
         private static IFeatureClass addressPointsSGID;
@@ -51,6 +52,11 @@ namespace AddressCrossCheck
             int validationSearchDistance = Convert.ToInt32(args[2]); // 240;
             const int sqlQuerySearchDistance = 2000;
             
+            // get the county name from the county id
+            int countyId_int = ConvertToInt(jurisToCheck);
+            countyName = GetCountyName(countyId_int);
+            Console.WriteLine("The county id arg passed in was: " + jurisToCheck + ". This code converted that ID to a county name of: " + countyName + ".");
+
             var intIttrID = 0;
 
             //ESRI License Initializer generated code.
@@ -86,8 +92,12 @@ namespace AddressCrossCheck
 
                 // connect to sgid
                 // Get the connection string from the current machine's env variables
-                var connString = Environment.GetEnvironmentVariable("SGID_SQL_Conn", EnvironmentVariableTarget.User).ToString();
+                // SGID Database
+                //// var connString = Environment.GetEnvironmentVariable("SGID_SQL_Conn", EnvironmentVariableTarget.User).ToString();
+                // E911 Database
+                var connString = Environment.GetEnvironmentVariable("E911_SQL_Conn", EnvironmentVariableTarget.User).ToString();  // this connection uses the windows auth user
                 // example of connString = "Data Source=ServerUrlAddress;Initial Catalog=DatabaseName;User ID=DatabaseUserID;Password=DatabaseUserPassword"
+                
 
                 // Connect to the database.
                 using (var sgidConnectionAddressPoints = new SqlConnection(connString))
@@ -97,9 +107,9 @@ namespace AddressCrossCheck
                     sgidConnectionAddressPoints.Open();
                     sgidConnectionRoads.Open();
 
-                    // Query Address Points Data (I updated the query to only select address points that have a numeric value in the AddNum field - this omits values such as '2172-2178' and '125 W')
-                    using (var addressCommand = new SqlCommand(@"select OBJECTID, StreetName, AddNum,AddNumSuffix,PrefixDir,StreetType,SuffixDir,UTAddPtID from Location.ADDRESSPOINTS where " + countyOrAddressSystem + @" = '" + jurisToCheck + @"' and isnumeric(AddNum) = 1", sgidConnectionAddressPoints))
-                    {
+                    // Query Address Points Data (I updated the query to only select address points that have a numeric value in the AddNum field - this omits values such as '2172-2178' and '125 W')  //// location.ADDRESSPOINTS
+                    using (var addressCommand = new SqlCommand(@"select OBJECTID, StreetName, AddNum,AddNumSuffix,PrefixDir,StreetType,SuffixDir,UTAddPtID from E911.E911ADMIN.addrXchk_CarbonPnts_06182019 where " + countyOrAddressSystem + @" = '" + jurisToCheck + @"' and isnumeric(AddNum) = 1", sgidConnectionAddressPoints))
+                    { 
                         // Create an address point data reader.
                         using (SqlDataReader addressReader = addressCommand.ExecuteReader())
                         {
@@ -125,9 +135,9 @@ namespace AddressCrossCheck
                                     }
 
 
-                                    // Query the Roads data to check for the nearest road based on the current address point
-                                    using (var roadsCommand = new SqlCommand(@"DECLARE @g geometry = (select Shape from location.ADDRESSPOINTS where OBJECTID = " + addressPointOID + @");
-                                    SELECT TOP(2) Shape.STDistance(@g) as DISTANCE, FROMADDR_L, TOADDR_L, FROMADDR_R, TOADDR_R, OBJECTID, PREDIR, POSTTYPE, POSTDIR, UNIQUE_ID  FROM Transportation.ROADS
+                                    // Query the Roads data to check for the nearest road based on the current address point //// location.ADDRESSPOINTS Transportation.ROADS
+                                    using (var roadsCommand = new SqlCommand(@"DECLARE @g geometry = (select Shape from E911.E911ADMIN.addrXchk_CarbonPnts_06182019 where OBJECTID = " + addressPointOID + @");
+                                    SELECT TOP(2) Shape.STDistance(@g) as DISTANCE, FROMADDR_L, TOADDR_L, FROMADDR_R, TOADDR_R, OBJECTID, PREDIR, POSTTYPE, POSTDIR, UNIQUE_ID  FROM E911.E911ADMIN.addrXchk_CarbonRds_06182019
                                     WHERE Shape.STDistance(@g) is not null and Shape.STDistance(@g) < " + sqlQuerySearchDistance + @" and NAME = '" + addressPointStreetName + @"'
                                     ORDER BY Shape.STDistance(@g)", sgidConnectionRoads))
 
@@ -489,5 +499,117 @@ namespace AddressCrossCheck
 
             // Back to Main function.
         }
+
+
+        // Get County Name from CountyID
+        private static string GetCountyName(int countyId)
+        {
+            switch (countyId)
+            {
+                case 49001:
+                    return "Beaver";
+                    break;
+                case 49003:
+                    return "BoxElder";
+                    break;                
+                case 49005:
+                    return "Cache";
+                    break;
+                case 49007:
+                    return "Carbon";
+                    break;                     
+                case 49009:
+                    return "Daggett";
+                    break;
+                case 49011:
+                    return "Davis";
+                    break;                
+                case 49013:
+                    return "Duchesne";
+                    break;
+                case 49015:
+                    return "Emery";
+                    break;                
+                case 49017:
+                    return "Garfield";
+                    break;
+                case 49019:
+                    return "Grand";
+                    break;                
+                case 49021:
+                    return "Iron";
+                    break;
+                case 49023:
+                    return "Juab";
+                    break;                     
+                case 49025:
+                    return "Kane";
+                    break;
+                case 49027:
+                    return "Millard";
+                    break;                
+                case 49029:
+                    return "Morgan";
+                    break;
+                case 49031:
+                    return "Piute";
+                    break;               
+                case 49033:
+                    return "Rich";
+                    break;                
+                case 49035:
+                    return "SaltLake";
+                    break;
+                case 49037:
+                    return "SanJuan";
+                    break;                
+                case 49039:
+                    return "Sanpete";
+                    break;
+                case 49041:
+                    return "Sevier";
+                    break;                     
+                case 49043:
+                    return "Summit";
+                    break;
+                case 49045:
+                    return "Tooele";
+                    break;                
+                case 49047:
+                    return "Uintah";
+                    break;
+                case 49049:
+                    return "Utah";
+                    break; 
+                case 49051:
+                    return "Wasatch";
+                    break;
+                case 49053:
+                    return "Washington";
+                    break;                
+                case 49055:
+                    return "Wayne";
+                    break;
+                case 49057:
+                    return "Weber";
+                    break; 
+                default:
+                    break;
+            }
+            return "";
+        }
+
+
+        // convert to int
+        private static int ConvertToInt(string stringToParse)
+        {
+            int i = 0;
+            if (!Int32.TryParse(stringToParse, out i))
+            {
+                i = -1;
+            }
+            return i;
+        }
+
     }
 }
