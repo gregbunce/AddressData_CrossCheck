@@ -26,8 +26,9 @@ namespace AddressCrossCheck
         private static string countyOrAddressSystem = "";  // AddSystem OR CountyID
         private static string countyName = "";
         private static IWorkspace workspaceFGDB;
-        private static string jurisNameNoSpace;
+        //private static string jurisNameNoSpace;
         private static IFeatureClass addressPointsSGID;
+        private static string fileGeodatabaseName = ""; 
 
     
         [STAThread()]
@@ -56,6 +57,9 @@ namespace AddressCrossCheck
             int countyId_int = ConvertToInt(jurisToCheck);
             countyName = GetCountyName(countyId_int);
             Console.WriteLine("The county id arg passed in was: " + jurisToCheck + ". This code converted that ID to a county name of: " + countyName + ".");
+
+            // create the file geodatabase name
+            fileGeodatabaseName = "AddrXchk_" + countyName + "_" + DateTime.Now.ToString("yyyyMMdd") + ".gdb";
 
             var intIttrID = 0;
 
@@ -93,9 +97,9 @@ namespace AddressCrossCheck
                 // connect to sgid
                 // Get the connection string from the current machine's env variables
                 // SGID Database
-                //// var connString = Environment.GetEnvironmentVariable("SGID_SQL_Conn", EnvironmentVariableTarget.User).ToString();
+                var connString = Environment.GetEnvironmentVariable("SGID_SQL_Conn", EnvironmentVariableTarget.User).ToString();
                 // E911 Database
-                var connString = Environment.GetEnvironmentVariable("E911_SQL_Conn", EnvironmentVariableTarget.User).ToString();  // this connection uses the windows auth user
+                //var connString = Environment.GetEnvironmentVariable("E911_SQL_Conn", EnvironmentVariableTarget.User).ToString();  // this connection uses the windows auth user
                 // example of connString = "Data Source=ServerUrlAddress;Initial Catalog=DatabaseName;User ID=DatabaseUserID;Password=DatabaseUserPassword"
                 
 
@@ -108,7 +112,10 @@ namespace AddressCrossCheck
                     sgidConnectionRoads.Open();
 
                     // Query Address Points Data (I updated the query to only select address points that have a numeric value in the AddNum field - this omits values such as '2172-2178' and '125 W')  //// location.ADDRESSPOINTS
-                    using (var addressCommand = new SqlCommand(@"select OBJECTID, StreetName, AddNum,AddNumSuffix,PrefixDir,StreetType,SuffixDir,UTAddPtID from E911.E911ADMIN.addrXchk_CarbonPnts_06182019 where " + countyOrAddressSystem + @" = '" + jurisToCheck + @"' and isnumeric(AddNum) = 1", sgidConnectionAddressPoints))
+                    //E911 query: 
+                    //using (var addressCommand = new SqlCommand(@"select OBJECTID, StreetName, AddNum,AddNumSuffix,PrefixDir,StreetType,SuffixDir,UTAddPtID from E911.E911ADMIN.addrXchk_CarbonPnts_06182019 where " + countyOrAddressSystem + @" = '" + jurisToCheck + @"' and isnumeric(AddNum) = 1", sgidConnectionAddressPoints))
+                    //SGID10 query:
+                    using (var addressCommand = new SqlCommand(@"select OBJECTID, StreetName, AddNum,AddNumSuffix,PrefixDir,StreetType,SuffixDir,UTAddPtID from SGID10.LOCATION.AddressPoints where " + countyOrAddressSystem + @" = '" + jurisToCheck + @"' and isnumeric(AddNum) = 1 and StreetName = 'CENTER'", sgidConnectionAddressPoints))
                     { 
                         // Create an address point data reader.
                         using (SqlDataReader addressReader = addressCommand.ExecuteReader())
@@ -136,8 +143,15 @@ namespace AddressCrossCheck
 
 
                                     // Query the Roads data to check for the nearest road based on the current address point //// location.ADDRESSPOINTS Transportation.ROADS
-                                    using (var roadsCommand = new SqlCommand(@"DECLARE @g geometry = (select Shape from E911.E911ADMIN.addrXchk_CarbonPnts_06182019 where OBJECTID = " + addressPointOID + @");
-                                    SELECT TOP(2) Shape.STDistance(@g) as DISTANCE, FROMADDR_L, TOADDR_L, FROMADDR_R, TOADDR_R, OBJECTID, PREDIR, POSTTYPE, POSTDIR, UNIQUE_ID  FROM E911.E911ADMIN.addrXchk_CarbonRds_06182019
+                                    //E911 query: 
+                                    //using (var roadsCommand = new SqlCommand(@"DECLARE @g geometry = (select Shape from E911.E911ADMIN.addrXchk_CarbonPnts_06182019 where OBJECTID = " + addressPointOID + @");
+                                    //SELECT TOP(2) Shape.STDistance(@g) as DISTANCE, FROMADDR_L, TOADDR_L, FROMADDR_R, TOADDR_R, OBJECTID, PREDIR, POSTTYPE, POSTDIR, UNIQUE_ID  FROM E911.E911ADMIN.addrXchk_CarbonRds_06182019
+                                    //WHERE Shape.STDistance(@g) is not null and Shape.STDistance(@g) < " + sqlQuerySearchDistance + @" and NAME = '" + addressPointStreetName + @"'
+                                    //ORDER BY Shape.STDistance(@g)", sgidConnectionRoads))
+
+                                    //SGID10 query:
+                                    using (var roadsCommand = new SqlCommand(@"DECLARE @g geometry = (select Shape from SGID10.LOCATION.AddressPoints where OBJECTID = " + addressPointOID + @");
+                                    SELECT TOP(2) Shape.STDistance(@g) as DISTANCE, FROMADDR_L, TOADDR_L, FROMADDR_R, TOADDR_R, OBJECTID, PREDIR, POSTTYPE, POSTDIR, UNIQUE_ID  FROM SGID10.TRANSPORTATION.Roads
                                     WHERE Shape.STDistance(@g) is not null and Shape.STDistance(@g) < " + sqlQuerySearchDistance + @" and NAME = '" + addressPointStreetName + @"'
                                     ORDER BY Shape.STDistance(@g)", sgidConnectionRoads))
 
@@ -317,7 +331,8 @@ namespace AddressCrossCheck
         public static void CreateFileGeodatabase()
         {
             string strFgdPath = @"C:\temp\";
-            string strFgdName = @"AddressCrossCheck";
+            //string strFgdName = @"AddressCrossCheck";
+            string strFgdName = fileGeodatabaseName;
 
             IWorkspaceName workspaceName = null;
             // Instantiate a file geodatabase workspace factory and create a new file geodatabase.
@@ -358,10 +373,12 @@ namespace AddressCrossCheck
             // Table to Table Tool.
             ESRI.ArcGIS.ConversionTools.TableToTable importTable = new ESRI.ArcGIS.ConversionTools.TableToTable();
             importTable.in_rows = textFilePathName;
-            importTable.out_path = @"C:\temp\AddressCrossCheck.gdb";
-            // remove space in juris name
-            jurisNameNoSpace = jurisToCheck.Replace(" ", "");
-            importTable.out_name = "tbl" + jurisNameNoSpace.Trim() + "_Report";
+            //importTable.out_path = @"C:\temp\AddressCrossCheck.gdb";
+            importTable.out_path = @"C:\temp\" + fileGeodatabaseName;
+            ////// remove space in juris name
+            ////jurisNameNoSpace = jurisToCheck.Replace(" ", "");
+            ////importTable.out_name = "tbl" + jurisNameNoSpace.Trim() + "_Report";
+            importTable.out_name = "tbl_" + countyName + "Report";
 
             // Execute the Table to Table Tool
             Console.WriteLine("Importing Text File as Table...");
@@ -386,8 +403,9 @@ namespace AddressCrossCheck
             ESRI.ArcGIS.ConversionTools.FeatureClassToFeatureClass importAddrPnts = new ESRI.ArcGIS.ConversionTools.FeatureClassToFeatureClass();
             importAddrPnts.in_features = addressPointsSGID;
             importAddrPnts.where_clause = countyOrAddressSystem + @" = '" + jurisToCheck + @"'";
-            importAddrPnts.out_name = "AddrPnts" + jurisNameNoSpace + "_SGID";
-            importAddrPnts.out_path = @"C:\temp\AddressCrossCheck.gdb";
+            importAddrPnts.out_name = "AddrPnts" + "_SGID";
+            //importAddrPnts.out_path = @"C:\temp\AddressCrossCheck.gdb";
+            importAddrPnts.out_path = @"C:\temp\" + fileGeodatabaseName;
 
             // Execute the Feature Class to Feature Class Tool
             Console.WriteLine("Importing Address Points as Feature Class...");
@@ -411,8 +429,9 @@ namespace AddressCrossCheck
                 roadsFieldType = "COUNTY";
             }
             importRoads.where_clause = roadsFieldType + @"_L = '" + jurisToCheck + @"' or " + roadsFieldType + @"_R = '" + jurisToCheck + @"'";
-            importRoads.out_name = "Roads" + jurisNameNoSpace + "_SGID";
-            importRoads.out_path = @"C:\temp\AddressCrossCheck.gdb";
+            importRoads.out_name = "Roads" + "_SGID";
+            //importRoads.out_path = @"C:\temp\AddressCrossCheck.gdb";
+            importRoads.out_path = @"C:\temp\" + fileGeodatabaseName;
 
             // Execute the Feature Class to Feature Class Tool
             Console.WriteLine("Importing Roads as Feature Class...");
@@ -439,19 +458,19 @@ namespace AddressCrossCheck
             // table name.
             if (dataToJoin == "AddrPoints")
             {
-                featureClassName = "AddrPnts" + jurisNameNoSpace + "_SGID";
+                featureClassName = "AddrPnts" + "_SGID";
                 featureClassJoinFieldName = ".UTAddPtID";
                 tableNameJoinFieldName = ".ADDR_UID";
 
             }
             else if (dataToJoin == "Roads")
             {
-                featureClassName = "Roads" + jurisNameNoSpace + "_SGID";
+                featureClassName = "Roads" + "_SGID";
                 featureClassJoinFieldName = ".UNIQUE_ID";
                 tableNameJoinFieldName = ".ROAD_UID";
             }
 
-            string tableName = "tbl" + jurisNameNoSpace.Trim() + "_Report";
+            string tableName = "tbl_" + countyName + "Report";
             string queryDefTables = tableName + "," + featureClassName;
             string queryDefWhereClause = tableName + tableNameJoinFieldName + " = " + featureClassName + featureClassJoinFieldName;
 
@@ -490,8 +509,9 @@ namespace AddressCrossCheck
             // FeatureClass to Feature Class Tool
             ESRI.ArcGIS.ConversionTools.FeatureClassToFeatureClass importRoads = new ESRI.ArcGIS.ConversionTools.FeatureClassToFeatureClass();
             importRoads.in_features = featClass;
-            importRoads.out_name = dataSetName + jurisNameNoSpace + "_ToCheck";
-            importRoads.out_path = @"C:\temp\AddressCrossCheck.gdb";
+            importRoads.out_name = dataSetName + "_ToCheck";
+            //importRoads.out_path = @"C:\temp\AddressCrossCheck.gdb";
+            importRoads.out_path = @"C:\temp\" + fileGeodatabaseName;
 
             // Execute the Feature Class to Feature Class Tool
             Console.WriteLine("Exporting the Joined " + dataSetName + "...");
